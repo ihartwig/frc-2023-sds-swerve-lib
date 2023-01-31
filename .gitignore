@@ -12,3 +12,6 @@ bin/
 .classpath
 .project
 
+# MacOS Ignore
+.DS_Store
+

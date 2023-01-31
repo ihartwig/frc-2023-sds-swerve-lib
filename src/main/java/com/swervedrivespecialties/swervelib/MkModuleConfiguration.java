@@ -138,4 +138,10 @@ public class MkModuleConfiguration {
         config.setSteerPID(1.0, 0.0, 0.1);
         return config;
     }
+
+    public static MkModuleConfiguration getDefaultSteerVictorSPX() {
+        MkModuleConfiguration config = new MkModuleConfiguration();
+        config.setSteerPID(0.2, 0.0, 0.1);
+        return config;
+    }
 }

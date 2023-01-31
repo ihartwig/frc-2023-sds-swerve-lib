@@ -43,6 +43,18 @@ public class MkSwerveModuleBuilder {
                         .build());
     }
 
+    private static SteerControllerFactory<?, SteerConfiguration<CanCoderAbsoluteConfiguration>> getVictorSPXSteerFactory(MkModuleConfiguration configuration) {
+        return new Falcon500SteerControllerFactoryBuilder()
+                .withVoltageCompensation(configuration.getNominalVoltage())
+                .withPidConstants(configuration.getSteerKP(), configuration.getSteerKI(), configuration.getSteerKD())
+                .withMotionMagic(configuration.getSteerMMkV(), configuration.getSteerMMkA(),
+                        configuration.getSteerMMkS())
+                .withCurrentLimit(configuration.getSteerCurrentLimit())
+                .build(new CanCoderFactoryBuilder()
+                        .withReadingUpdatePeriod(100)
+                        .build());
+    }
+
     private final MkModuleConfiguration configuration;
     private final boolean useDefaultSteerConfiguration;
     private ShuffleboardLayout container = null;
@@ -127,6 +139,12 @@ public class MkSwerveModuleBuilder {
                     this.steerFactory = getNeoSteerFactory(MkModuleConfiguration.getDefaultSteerNEO());
                 else
                     this.steerFactory = getNeoSteerFactory(this.configuration);
+                break;
+            case VICTORSPX:
+                if (this.useDefaultSteerConfiguration)
+                    this.steerFactory = getVictorSPXSteerFactory(MkModuleConfiguration.getDefaultSteerVictorSPX());
+                else
+                    this.steerFactory = getVictorSPXSteerFactory(this.configuration);
                 break;
             default:
                 break;
