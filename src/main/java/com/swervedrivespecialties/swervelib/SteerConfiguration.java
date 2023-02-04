@@ -4,15 +4,21 @@ import java.util.Objects;
 
 public class SteerConfiguration<EncoderConfiguration> {
     private final int motorPort;
+    private final int encoderPort;
     private final EncoderConfiguration encoderConfiguration;
 
-    public SteerConfiguration(int motorPort, EncoderConfiguration encoderConfiguration) {
+    public SteerConfiguration(int motorPort, int encoderPort, EncoderConfiguration encoderConfiguration) {
         this.motorPort = motorPort;
+        this.encoderPort = encoderPort;
         this.encoderConfiguration = encoderConfiguration;
     }
 
     public int getMotorPort() {
         return motorPort;
+    }
+
+    public int getEncoderPort() {
+        return encoderPort;
     }
 
     public EncoderConfiguration getEncoderConfiguration() {

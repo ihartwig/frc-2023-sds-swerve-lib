@@ -44,7 +44,7 @@ public class MkSwerveModuleBuilder {
     }
 
     private static SteerControllerFactory<?, SteerConfiguration<CanCoderAbsoluteConfiguration>> getVictorSPXSteerFactory(MkModuleConfiguration configuration) {
-        return new Falcon500SteerControllerFactoryBuilder()
+        return new VictorSPXSteerControllerFactoryBuilder()
                 .withVoltageCompensation(configuration.getNominalVoltage())
                 .withPidConstants(configuration.getSteerKP(), configuration.getSteerKI(), configuration.getSteerKD())
                 .withMotionMagic(configuration.getSteerMMkV(), configuration.getSteerMMkA(),
@@ -207,18 +207,12 @@ public class MkSwerveModuleBuilder {
 
         SteerConfiguration<CanCoderAbsoluteConfiguration> steerConfig;
 
-        if (steerMotorType == MotorType.FALCON) {
+        if (steerMotorType == MotorType.FALCON ||
+            steerMotorType == MotorType.NEO ||
+            steerMotorType == MotorType.VICTORSPX) {
             steerConfig = new SteerConfiguration<>(
-                    steerMotorPort, 
-                    new CanCoderAbsoluteConfiguration(
-                            steerEncoderPort, 
-                            steerOffset,
-                            steerEncoderCanbus
-                    )
-            );
-        } else if (steerMotorType == MotorType.NEO) {
-            steerConfig = new SteerConfiguration<>(
-                    steerMotorPort, 
+                    steerMotorPort,
+                    steerEncoderPort,
                     new CanCoderAbsoluteConfiguration(
                             steerEncoderPort, 
                             steerOffset,

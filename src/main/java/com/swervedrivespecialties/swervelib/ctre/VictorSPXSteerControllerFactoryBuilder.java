@@ -87,6 +87,9 @@ public final class VictorSPXSteerControllerFactoryBuilder {
         @Override
         public ControllerImplementation create(SteerConfiguration<T> steerConfiguration, String canbus, MechanicalConfiguration mechConfiguration) {
             AbsoluteEncoder absoluteEncoder = encoderFactory.create(steerConfiguration.getEncoderConfiguration());
+            // assume that the steer encoder is a CanCoder since that seems the only supported option
+            final int steerCancoderId = steerConfiguration.getEncoderPort();
+            // WPI_CANCoder steerCancoder = absoluteEncoder.getInternal();
 
             final double sensorPositionCoefficient = 2.0 * Math.PI / TICKS_PER_ROTATION * mechConfiguration.getSteerReduction();
             final double sensorVelocityCoefficient = sensorPositionCoefficient * 10.0;
@@ -118,15 +121,14 @@ public final class VictorSPXSteerControllerFactoryBuilder {
             }
 
             WPI_VictorSPX motor = new WPI_VictorSPX(steerConfiguration.getMotorPort());
-            // WPI_TalonFX motor = new WPI_TalonFX(steerConfiguration.getMotorPort(), canbus);
             checkCtreError(motor.configAllSettings(motorConfiguration, CAN_TIMEOUT_MS), "Failed to configure VictorSPX settings");
 
             if (hasVoltageCompensation()) {
                 motor.enableVoltageCompensation(true);
             }
-            // TODO(ihartwig): handle encoder setting here
-            // checkCtreError(motor.configSelectedFeedbackSensor(RemoteFeedbackDevice?, 0, CAN_TIMEOUT_MS), "Failed to configure VictorSPX feedback sensor");
-            // checkCtreError(motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, CAN_TIMEOUT_MS), "Failed to set Falcon 500 feedback sensor");
+            checkCtreError(motor.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, CAN_TIMEOUT_MS), "Failed to configure VictorSPX feedback sensor");
+            // checkCtreError(motor.configSelectedFeedbackFilter(steerCancoder, 0, CAN_TIMEOUT_MS), "Failed to configure VictorSPX feedback filter 0");
+            checkCtreError(motor.configRemoteFeedbackFilter(steerCancoderId, RemoteSensorSource.CANCoder, 0, CAN_TIMEOUT_MS), "Failed to configure VictorSPX feedback filter 0");
             motor.setSensorPhase(true);
             motor.setInverted(mechConfiguration.isSteerInverted() ? true : false);
             // motor.setInverted(mechConfiguration.isSteerInverted() ? TalonFXInvertType.CounterClockwise : TalonFXInvertType.Clockwise);
@@ -135,7 +137,6 @@ public final class VictorSPXSteerControllerFactoryBuilder {
             checkCtreError(motor.setSelectedSensorPosition(absoluteEncoder.getAbsoluteAngle() / sensorPositionCoefficient, 0, CAN_TIMEOUT_MS), "Failed to set Falcon 500 encoder position");
 
             // Reduce CAN status frame rates
-            // TODO(ihartwig) set status frame time
             CtreUtils.checkCtreError(
                     motor.setStatusFramePeriod(
                             StatusFrame.Status_1_General,
